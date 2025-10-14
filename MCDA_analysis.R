@@ -260,76 +260,87 @@ Weight_subattributes <- lapply(Weight_subattributes, generate_values)
   }
 
 
-
 Final_score_all <- vector("list", 100)
+
+# Create lists to store component scores
+Score_Epi <- vector("list", 100)
+Score_Prevention <- vector("list", 100)
+Score_PublicHealth <- vector("list", 100)
+Score_Economic <- vector("list", 100)
+Score_Social <- vector("list", 100)
+
+for (i in 1:100) {
   
-  for (i in 1:100) {
+  # Criteria Epi  
+  Value_incidence <- (Weight_criteria_sim[i,1]*Weight_attributes_list[[i]][1])*Epi_data$Incidence 
+  Value_lethality <- (Weight_criteria_sim[i,1]*Weight_attributes_list[[i]][2])*Epi_data$Lethality
+  Value_transmission <- (Weight_criteria_sim[i,1]*Weight_attributes_list[[i]][3])*Epi_data$Transmission
   
+  Total_criteria_score_Epi <- Value_incidence + Value_lethality + Value_transmission
+  Total_criteria_score_Epi <- c(Total_criteria_score_Epi[3], Total_criteria_score_Epi[5], 
+                                Total_criteria_score_Epi[4], Total_criteria_score_Epi[1], Total_criteria_score_Epi[2])
   
-#Criteria Epi  
-Value_incidence <- (Weight_criteria_sim[i,1]*Weight_attributes_list[[i]][1])*Epi_data$Incidence 
-Value_lethality <- (Weight_criteria_sim[i,1]*Weight_attributes_list[[i]][2])*Epi_data$Lethality
-Value_transmission <- (Weight_criteria_sim[i,1]*Weight_attributes_list[[i]][3])*Epi_data$Transmission
-
-Total_criteria_score_Epi <- Value_incidence + Value_lethality + Value_transmission #Reorder diseases so the same as rest of criteria scores 
-Total_criteria_score_Epi <- c(Total_criteria_score_Epi[3], Total_criteria_score_Epi[5], 
-                              Total_criteria_score_Epi[4], Total_criteria_score_Epi[1], Total_criteria_score_Epi[2])
-
-#Criteria prevention/control 
-Value_diagnostics <- (Weight_criteria_sim[i,2]*Weight_attributes_list[[i]][4])*
-  rbind(Weight_subattributes[[1]][i], Weight_subattributes[[2]][i],Weight_subattributes[[2]][i],Weight_subattributes[[2]][i],Weight_subattributes[[1]][i])
-
-Value_treatments <- (Weight_criteria_sim[i,2]*Weight_attributes_list[[i]][5])*
-  rbind(Weight_subattributes[[6]][i], Weight_subattributes[[6]][i],Weight_subattributes[[7]][i],Weight_subattributes[[7]][i],Weight_subattributes[[8]][i])
-
-Value_tools_control <- (Weight_criteria_sim[i,2]*Weight_attributes_list[[i]][6])*
-  rbind(Weight_subattributes[[9]][i], Weight_subattributes[[10]][i],Weight_subattributes[[10]][i],Weight_subattributes[[10]][i],Weight_subattributes[[12]][i])
-
-Value_knowledge_pathogen <- (Weight_criteria_sim[i,2]*Weight_attributes_list[[i]][7])*
-  rbind(Weight_subattributes[[14]][i], Weight_subattributes[[16]][i],Weight_subattributes[[15]][i],Weight_subattributes[[15]][i],Weight_subattributes[[15]][i])
-
-Total_criteria_score_prevention <- Value_diagnostics + Value_treatments + Value_tools_control + Value_knowledge_pathogen
-
-#Criteria public health 
-Value_efective_intervention <- (Weight_criteria_sim[i,3]*Weight_attributes_list[[i]][8])*
-  rbind(Weight_subattributes[[18]][i], Weight_subattributes[[19]][i],Weight_subattributes[[18]][i],Weight_subattributes[[18]][i],Weight_subattributes[[19]][i])
-
-Value_epidemic_potential <- (Weight_criteria_sim[i,3]*Weight_attributes_list[[i]][9])*
-  rbind(Weight_subattributes[[20]][i], Weight_subattributes[[22]][i],Weight_subattributes[[22]][i],Weight_subattributes[[20]][i],Weight_subattributes[[21]][i])
-
-Total_criteria_public_health <- Value_efective_intervention + Value_epidemic_potential
-
-#Criteria economic 
-Value_cost_eradication <- (Weight_criteria_sim[i,4]*Weight_attributes_list[[i]][10])*
-  rbind(Weight_subattributes[[24]][i], Weight_subattributes[[26]][i],Weight_subattributes[[24]][i],Weight_subattributes[[25]][i],Weight_subattributes[[25]][i])
-
-Value_cost_healthcare <- (Weight_criteria_sim[i,4]*Weight_attributes_list[[i]][11])*
-  rbind(Weight_subattributes[[28]][i], Weight_subattributes[[27]][i],Weight_subattributes[[28]][i],Weight_subattributes[[27]][i],Weight_subattributes[[28]][i])
-
-Value_cost_productivity <- (Weight_criteria_sim[i,4]*Weight_attributes_list[[i]][12])*
-  rbind(Weight_subattributes[[30]][i], Weight_subattributes[[30]][i],Weight_subattributes[[31]][i],Weight_subattributes[[30]][i],Weight_subattributes[[32]][i])
-
-Total_criteria_economic <- Value_cost_eradication + Value_cost_healthcare + Value_cost_productivity 
-
-#Criteria Social 
-Value_QOL <- (Weight_criteria_sim[i,5]*Weight_attributes_list[[i]][13])*
-  rbind(Weight_subattributes[[35]][i], Weight_subattributes[[33]][i],Weight_subattributes[[35]][i],Weight_subattributes[[35]][i],Weight_subattributes[[33]][i])
-
-Value_public_perception <- (Weight_criteria_sim[i,5]*Weight_attributes_list[[i]][14])*
-  rbind(Weight_subattributes[[37]][i], Weight_subattributes[[37]][i],Weight_subattributes[[37]][i],Weight_subattributes[[37]][i],Weight_subattributes[[38]][i])
-
-Total_criteria_social <- Value_QOL+ Value_public_perception 
-
-### Summed totals of all criteria 
-Final_score_all[[i]]<- Total_criteria_score_Epi + 
-  Total_criteria_score_prevention + 
-  Total_criteria_public_health + 
-  Total_criteria_economic + 
-  Total_criteria_social
+  # Criteria prevention/control 
+  Value_diagnostics <- (Weight_criteria_sim[i,2]*Weight_attributes_list[[i]][4])*
+    rbind(Weight_subattributes[[1]][i], Weight_subattributes[[2]][i],Weight_subattributes[[2]][i],Weight_subattributes[[2]][i],Weight_subattributes[[1]][i])
+  
+  Value_treatments <- (Weight_criteria_sim[i,2]*Weight_attributes_list[[i]][5])*
+    rbind(Weight_subattributes[[6]][i], Weight_subattributes[[6]][i],Weight_subattributes[[7]][i],Weight_subattributes[[7]][i],Weight_subattributes[[8]][i])
+  
+  Value_tools_control <- (Weight_criteria_sim[i,2]*Weight_attributes_list[[i]][6])*
+    rbind(Weight_subattributes[[9]][i], Weight_subattributes[[10]][i],Weight_subattributes[[10]][i],Weight_subattributes[[10]][i],Weight_subattributes[[12]][i])
+  
+  Value_knowledge_pathogen <- (Weight_criteria_sim[i,2]*Weight_attributes_list[[i]][7])*
+    rbind(Weight_subattributes[[14]][i], Weight_subattributes[[16]][i],Weight_subattributes[[15]][i],Weight_subattributes[[15]][i],Weight_subattributes[[15]][i])
+  
+  Total_criteria_score_prevention <- Value_diagnostics + Value_treatments + Value_tools_control + Value_knowledge_pathogen
+  
+  # Criteria public health 
+  Value_efective_intervention <- (Weight_criteria_sim[i,3]*Weight_attributes_list[[i]][8])*
+    rbind(Weight_subattributes[[18]][i], Weight_subattributes[[19]][i],Weight_subattributes[[18]][i],Weight_subattributes[[18]][i],Weight_subattributes[[19]][i])
+  
+  Value_epidemic_potential <- (Weight_criteria_sim[i,3]*Weight_attributes_list[[i]][9])*
+    rbind(Weight_subattributes[[20]][i], Weight_subattributes[[22]][i],Weight_subattributes[[22]][i],Weight_subattributes[[20]][i],Weight_subattributes[[21]][i])
+  
+  Total_criteria_public_health <- Value_efective_intervention + Value_epidemic_potential
+  
+  # Criteria economic 
+  Value_cost_eradication <- (Weight_criteria_sim[i,4]*Weight_attributes_list[[i]][10])*
+    rbind(Weight_subattributes[[24]][i], Weight_subattributes[[26]][i],Weight_subattributes[[24]][i],Weight_subattributes[[25]][i],Weight_subattributes[[25]][i])
+  
+  Value_cost_healthcare <- (Weight_criteria_sim[i,4]*Weight_attributes_list[[i]][11])*
+    rbind(Weight_subattributes[[28]][i], Weight_subattributes[[27]][i],Weight_subattributes[[28]][i],Weight_subattributes[[27]][i],Weight_subattributes[[28]][i])
+  
+  Value_cost_productivity <- (Weight_criteria_sim[i,4]*Weight_attributes_list[[i]][12])*
+    rbind(Weight_subattributes[[30]][i], Weight_subattributes[[30]][i],Weight_subattributes[[31]][i],Weight_subattributes[[30]][i],Weight_subattributes[[32]][i])
+  
+  Total_criteria_economic <- Value_cost_eradication + Value_cost_healthcare + Value_cost_productivity 
+  
+  # Criteria Social 
+  Value_QOL <- (Weight_criteria_sim[i,5]*Weight_attributes_list[[i]][13])*
+    rbind(Weight_subattributes[[35]][i], Weight_subattributes[[33]][i],Weight_subattributes[[35]][i],Weight_subattributes[[35]][i],Weight_subattributes[[33]][i])
+  
+  Value_public_perception <- (Weight_criteria_sim[i,5]*Weight_attributes_list[[i]][14])*
+    rbind(Weight_subattributes[[37]][i], Weight_subattributes[[37]][i],Weight_subattributes[[37]][i],Weight_subattributes[[37]][i],Weight_subattributes[[38]][i])
+  
+  Total_criteria_social <- Value_QOL + Value_public_perception 
+  
+  # Store each component
+  Score_Epi[[i]] <- Total_criteria_score_Epi
+  Score_Prevention[[i]] <- Total_criteria_score_prevention
+  Score_PublicHealth[[i]] <- Total_criteria_public_health
+  Score_Economic[[i]] <- Total_criteria_economic
+  Score_Social[[i]] <- Total_criteria_social
+  
+  # Final score
+  Final_score_all[[i]] <- Total_criteria_score_Epi + 
+    Total_criteria_score_prevention + 
+    Total_criteria_public_health + 
+    Total_criteria_economic + 
+    Total_criteria_social
 }
 
 # Final summary
-
 Final_score_matrix <- do.call(cbind, Final_score_all)
 
 Final_summary <- data.frame(
@@ -341,6 +352,25 @@ Final_summary <- data.frame(
 )
 
 Final_summary <- Final_summary[order(-Final_summary$Mean),]
+
+# Component summaries
+component_summary <- function(score_list) {
+  score_matrix <- do.call(cbind, score_list)
+  data.frame(
+    Disease = c("Echino", "Lepto", "Trich", "Rabies", "Hanta"),
+    Mean = rowMeans(score_matrix),
+    SD = apply(score_matrix, 1, sd),
+    CI_lower = apply(score_matrix, 1, function(x) quantile(x, 0.025)),
+    CI_upper = apply(score_matrix, 1, function(x) quantile(x, 0.975))
+  )
+}
+
+Epi_summary <- component_summary(Score_Epi)
+Prevention_summary <- component_summary(Score_Prevention)
+PublicHealth_summary <- component_summary(Score_PublicHealth)
+Economic_summary <- component_summary(Score_Economic)
+Social_summary <- component_summary(Score_Social)
+
 
 colours <- c("steelblue4","slategray3","#FFFFFF", "slategray1", "gray80")
 
@@ -389,5 +419,4 @@ legend("topright", legend = c("Hanta", "Lepto", "Trich", "Rabies", "Echino"), in
        col = c(colours[1],colours[2],"black",colours[4], colours[5]), lwd = 2, bty = "n", xpd=TRUE)
 
 dev.off()
-
 
