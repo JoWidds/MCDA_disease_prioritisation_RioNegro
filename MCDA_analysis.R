@@ -1,16 +1,6 @@
 setwd ("C:/Users/jw0104/OneDrive - University of Surrey/Documents/Argentina - echino/MCDA elicitation Argentina/Manuscript")
 rm(list=ls())
 
-# BETO_values <- read.csv("C:/Users/jw0104/OneDrive - University of Surrey/Documents/Post doc/03 - EUPAH&W/SOA12_Better tools for diagnosis of infectious diseases/BETO - MDCA Consolidated.responses.csv")
-# rows_to_drop <- c(1, 5, 6, 10, 11, 15, 16, 20, 21, 25, 26, 30) ## exclude 0 and 100 as lower/upper bounds remain the same  
-# BETO_values_clean <- BETO_values[-rows_to_drop, ]
-# BETO_values_clean <- BETO_values_clean[,-1]
-# 
-# 
-# BETO_values_clean[BETO_values_clean == 0] <- NA
-# row_sd <- apply(BETO_values_clean, 1, function(row) sd(row, na.rm = TRUE))
-# BETO_sd <- row_sd[7] 
-
 #### Original analysis ####
 ## Lethality and Transmission is normalized 
 Epi_data <- data.frame( 
@@ -399,4 +389,5 @@ legend("topright", legend = c("Hanta", "Lepto", "Trich", "Rabies", "Echino"), in
        col = c(colours[1],colours[2],"black",colours[4], colours[5]), lwd = 2, bty = "n", xpd=TRUE)
 
 dev.off()
+
 
