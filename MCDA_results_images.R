@@ -1,5 +1,15 @@
-#### Code for plot based upon final attribute weights. Attributes that were categorised as less than or 
-#equal to 2 per criteria had the highest hierarchical weights assigned to them.   
+###############################################################################
+# Code for images - Multi-Criteria Decision Analysis to inform policy priorities 
+# for zoonotic Diseases in Rio Negro, Argentina.  
+#
+# September 2026
+#
+# Code written by J. Widdicombe 
+#
+#     
+#
+###############################################################################
+#### Code for plot based upon final attribute weights.  
 
 rm(list=ls())
 
