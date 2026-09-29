@@ -1,4 +1,18 @@
-setwd ("C:/Users/jw0104/OneDrive - University of Surrey/Documents/Argentina - echino/MCDA elicitation Argentina/Manuscript")
+###############################################################################
+# Analysis code for Multi-Criteria Decision Analysis to inform policy priorities 
+# for zoonotic Diseases in Rio Negro, Argentina.  
+#
+# September 2026
+#
+# Code written by J. Widdicombe 
+#
+# Model populated from MCDA workshop, held in Rio Negro, Argentina, 2021
+#    
+#
+###############################################################################
+## 
+library(rstudioapi)
+setwd(dirname(getActiveDocumentContext()$path)) #set file location as working directory
 rm(list=ls())
 
 #### Original analysis ####
@@ -40,16 +54,16 @@ Attributes <- data.frame(
                          Attributes[[13,3]]/sum(Attributes[c(13:14), 3]), 
                          Attributes[[14,3]]/sum(Attributes[c(13:14), 3])) 
   
-  Weight_subattributes <- c(0,50,85,100, ##Criteria prevention/control 1-4
-                            0,10,85,100,
-                            0,14,60,15,100,
-                            0,15,100,
-                            0,20,100, ## criteria Public health 17-19
+  Weight_subattributes <- c(100,50,15,0,  ##Criteria prevention/control 1-4, 
+                            0,100,60,10,
+                            100,86,40,15,0,                                          
+                            100,85,0,
+                            100,80,0,     ## criteria Public health 17-19
                             0,50,20,100,
-                            0,20,100, ## Criteria economic impact 24-26
+                            100,80,0,     ## Criteria economic impact 24-26
                             0,15,100,
                             0,85,100,
-                            0,80,100, ##Criteria social 33- 35
+                            0,80,100,     ##Criteria social 33- 35
                             0,25,100)
                          
 #Criteria Epi  
@@ -110,10 +124,12 @@ rbind(Total_criteria_score_Epi, Total_criteria_score_prevention, Total_criteria_
 ### Summed totals of all criteria 
 Final_score_original <- Total_criteria_score_Epi + Total_criteria_score_prevention + Total_criteria_public_health + Total_criteria_economic + Total_criteria_social
 names(Final_score_original) <- c("Echino","Lepto","Trich","Rabies","Hanta")
-    
+Final_score_original    
 
 #### Analysis with sensitivity analysis ####  
 rm(list=ls())
+
+reps <- 1000
 
 Epi_data <- data.frame( 
   Dx = c("Rabies", "Hanta", "Echino", "Trich", "Lepto"),
@@ -126,20 +142,23 @@ Criteria <- data.frame(
   Rank = c(3,2,1,4,5), 
   Points = c(100, 100, 100, 80, 80))
 
+lower <- c(90, 100, 70, 70, 50) 
 
 # Jiggle criteria 
 Criteria_jiggle <- T ## Can turn on and off the criteria noise so can assess noise in sub attributes independently if desired 
+
 
 if (Criteria_jiggle == T) {
   set.seed(2)
   
   Points_sim_matrix <- matrix(
-    nrow = 100,
+    nrow = reps,
     ncol = nrow(Criteria)
   )
   
   for (i in 1:nrow(Criteria)) {
-    Points_sim_matrix[, i] <- pmax(0, rnorm(100, mean = Criteria$Points[i], sd = 7))
+    Points_sim_matrix[, i] <- pmax(lower[i],
+                                   rnorm(reps, mean = Criteria$Points[i], sd = 7))
   }
   
   # Normalise rows so each row sums to 1
@@ -148,8 +167,8 @@ if (Criteria_jiggle == T) {
 } else {
   # Use fixed weights
   Weight_criteria_sim <- matrix(
-    rep(Criteria$Points / sum(Criteria$Points), 100),
-    nrow = 100,
+    rep(Criteria$Points / sum(Criteria$Points), reps),
+    nrow = reps,
     byrow = TRUE
   )
 }
@@ -180,7 +199,7 @@ if (Attribute_jiggle == TRUE) {
   set.seed(2)
   
   Attribute_jiggle_matrix <- matrix(
-    nrow = 100,
+    nrow = reps,
     ncol = length(Attributes$Points)
   )
   
@@ -204,8 +223,8 @@ if (Attribute_jiggle == TRUE) {
 } else {
   # Use fixed weights
   Weight_criteria_sim <- matrix(
-    rep(Attributes$Points, 100),
-    nrow = 100,
+    rep(Attributes$Points, reps),
+    nrow = reps,
     byrow = TRUE
   )
   
@@ -228,17 +247,17 @@ if (Attribute_jiggle == TRUE) {
 
 Subattributes_jiggle <- T
 
-Weight_subattributes <- c(0,50,85,100, ##Criteria prevention/control 1-4
-                          0,10,85,100,
-                          0,14,60,15,100,
-                          0,15,100,
-                          0,20,100, ## criteria Public health 17-19
+Weight_subattributes <- c(100,50,15,0,  ##Criteria prevention/control 1-4, 
+                          0,100,60,10,
+                          100,86,40,15,0,                                          
+                          100,85,0,
+                          100,80,0,     ## criteria Public health 17-19
                           0,50,20,100,
-                          0,20,100, ## Criteria economic impact 24-26
+                          100,80,0,     ## Criteria economic impact 24-26
                           0,15,100,
                           0,85,100,
-                          0,80,100, ##Criteria social 33- 35
-                          0,25,100)
+                          0,80,100,     ##Criteria social 33- 35
+                          0,25,100) 
 
 if (Subattributes_jiggle == T) {
   set.seed(2)
@@ -246,30 +265,30 @@ if (Subattributes_jiggle == T) {
   generate_values <- function(x) {
   if (x == 0 || x == 100) {
     
-    rep(x, 100)
+    rep(x, reps)
   } else {
     
-    pmin(100, pmax(0, rnorm(100, mean = x, sd = 7)))
+    pmin(100, pmax(0, rnorm(reps, mean = x, sd = 7)))
   }
 }
 
 Weight_subattributes <- lapply(Weight_subattributes, generate_values)
 
 } else {
-  Weight_subattributes <- lapply(Weight_subattributes, function(x) rep(x, 100))
+  Weight_subattributes <- lapply(Weight_subattributes, function(x) rep(x, reps))
   }
 
 
-Final_score_all <- vector("list", 100)
+Final_score_all <- vector("list", reps)
 
 # Create lists to store component scores
-Score_Epi <- vector("list", 100)
-Score_Prevention <- vector("list", 100)
-Score_PublicHealth <- vector("list", 100)
-Score_Economic <- vector("list", 100)
-Score_Social <- vector("list", 100)
+Score_Epi <- vector("list", reps)
+Score_Prevention <- vector("list", reps)
+Score_PublicHealth <- vector("list", reps)
+Score_Economic <- vector("list", reps)
+Score_Social <- vector("list", reps)
 
-for (i in 1:100) {
+for (i in 1:reps) {
   
   # Criteria Epi  
   Value_incidence <- (Weight_criteria_sim[i,1]*Weight_attributes_list[[i]][1])*Epi_data$Incidence 
@@ -371,6 +390,29 @@ PublicHealth_summary <- component_summary(Score_PublicHealth)
 Economic_summary <- component_summary(Score_Economic)
 Social_summary <- component_summary(Score_Social)
 
+summary_list <- list(
+  Epi = Epi_summary,
+  Prevention = Prevention_summary,
+  PublicHealth = PublicHealth_summary,
+  Economic = Economic_summary,
+  Social = Social_summary,
+  Final = Final_summary
+)
+
+for (nm in names(summary_list)) {
+  
+  df <- summary_list[[nm]][, -3]  # drop SD column
+  
+  df[] <- lapply(df, function(x) {
+    if (is.numeric(x)) signif(x, 4) else x
+  })
+  
+  write.csv(
+    df,
+    file = paste0(nm, "_summary.csv"),
+    row.names = FALSE
+  )
+}
 
 colours <- c("steelblue4","slategray3","#FFFFFF", "slategray1", "gray80")
 
@@ -404,19 +446,21 @@ svg(file = "C:/Users/jw0104/OneDrive - University of Surrey/Documents/Argentina 
 # Set up empty plot with correct limits
 plot(x_vals, Final_score_matrix_1[5, ], type = "l", col = colours[1], lwd = 2,
      ylim = c(0, 70),
-     xlim = c(0, 100), xaxs = "i", yaxs = "i",
+     xlim = c(0, reps), xaxs = "i", yaxs = "i",
      xlab = "Simulation number", ylab = "Mean prioritisation value",
      main = "", 
      bty = "n")
 
-lines(x_vals, Final_score_matrix_1[2, ], col = colours[2], lwd = 2)
-lines(x_vals, Final_score_matrix_1[3, ], col = "black", lwd = 2)
-lines(x_vals, Final_score_matrix_1[4, ], col = colours[4], lwd = 2)
-lines(x_vals, Final_score_matrix_1[1, ], col = colours[5], lwd = 2)
+lines(x_vals, Final_score_matrix_1[2, ], col = colours[2], lwd = 1)
+lines(x_vals, Final_score_matrix_1[3, ], col = "black", lwd = 1)
+lines(x_vals, Final_score_matrix_1[4, ], col = colours[4], lwd = 1)
+lines(x_vals, Final_score_matrix_1[1, ], col = colours[5], lwd = 1)
 
 # Add a legend
-legend("topright", legend = c("Hanta", "Lepto", "Trich", "Rabies", "Echino"), inset=c(0, -0.12), 
+legend("topright", legend = c("Hanta", "Lepto", "Trich", "Rabies", "Echino"), inset=c(0, -0.21), 
        col = c(colours[1],colours[2],"black",colours[4], colours[5]), lwd = 2, bty = "n", xpd=TRUE)
 
 dev.off()
+
+
 
